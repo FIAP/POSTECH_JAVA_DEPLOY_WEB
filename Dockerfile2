@@ -1,0 +1,21 @@
+# Define a imagem base
+FROM maven:latest as builder
+
+# Copia o código-fonte do seu projeto
+COPY . /app
+WORKDIR /app
+
+# Compila e gera o arquivo WAR
+RUN mvn clean package -DskipTests
+
+# Define a imagem base do Tomcat
+FROM tomcat:latest
+
+# Copia o arquivo WAR gerado para a pasta webapps do Tomcat
+COPY --from=builder /app/target/fiap-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/fiap.war
+
+# Exponha a porta padrão do Tomcat
+EXPOSE 8080
+
+# Comando de inicialização do Tomcat
+CMD ["catalina.sh", "run"]
